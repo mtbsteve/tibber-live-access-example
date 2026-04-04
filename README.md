@@ -1,21 +1,25 @@
 # Tibber Live Access Example
 
-Real-time energy measurement viewer that connects to the [Tibber API](https://developer.tibber.com/) and streams live data from your Tibber Pulse or Watty device directly to your terminal.
+Real-time energy measurement viewer that connects to the [Tibber API](https://developer.tibber.com/) and streams live data from your Tibber Pulse or Watty device.
 
-If you have multiple homes with real-time support, the data is displayed **side by side**.
+This repository contains:
+
+1. **Standalone Python script** (`tibber_live.py`) — terminal-based live viewer
+2. **Home Assistant custom integration** (`custom_components/tibber_live/`) — HACS-compatible integration with sensors for all live data
+
+---
 
 ## Features
 
 - **OAuth2 Bearer token** authentication
 - Auto-discovery of all homes on your Tibber account
-- Dual-home side-by-side live display
-- **Quarter-hourly (15-min) electricity price** display (total, energy, tax, price level) — uses EPEX Spot 15-min resolution, refreshed every 60 seconds
-- Real-time fields: power, accumulated consumption, accumulated cost, currency, min/avg/max power, power production, accumulated production
+- Multi-home support (all homes with real-time enabled)
+- **Quarter-hourly (15-min) electricity price** (total, energy, tax, price level) — EPEX Spot resolution, refreshed every 60 seconds
+- Real-time fields: power, accumulated consumption, accumulated cost, min/avg/max power, power production, accumulated production
 - Auto-reconnect on connection loss
 
 ## Prerequisites
 
-- **Python 3.10+**
 - A **Tibber account** with a [Tibber Pulse](https://tibber.com/de/pulse) or Watty device connected to your smart meter
 - A **Tibber API token** (personal access token)
 
@@ -27,7 +31,61 @@ If you have multiple homes with real-time support, the data is displayed **side 
 4. Click **"Load personal token"** to reveal your token
 5. Copy the token for use below
 
-## Installation
+---
+
+## Option 1: Home Assistant Integration (HACS)
+
+### Installation via HACS
+
+1. Make sure [HACS](https://hacs.xyz/) is installed in your Home Assistant
+2. In HACS, go to **Integrations** → click the **three dots** (top right) → **Custom repositories**
+3. Add this repository URL: `https://github.com/mtbsteve/tibber-live-access-example`
+4. Select category **Integration** and click **Add**
+5. Search for **Tibber Live** in HACS and click **Install**
+6. **Restart Home Assistant**
+
+### Manual Installation
+
+1. Copy the `custom_components/tibber_live/` folder into your Home Assistant `config/custom_components/` directory
+2. Restart Home Assistant
+
+### Configuration
+
+1. Go to **Settings** → **Devices & Services** → **Add Integration**
+2. Search for **Tibber Live**
+3. Enter your Tibber API token
+4. The integration will auto-discover all homes with real-time support
+
+### Sensors Created
+
+For **each home**, the following sensors are created:
+
+| Sensor | Unit | Description |
+|--------|------|-------------|
+| Power | W | Current power consumption |
+| Min Power | W | Minimum power since midnight |
+| Average Power | W | Average power since midnight |
+| Max Power | W | Maximum power since midnight |
+| Accumulated Consumption | kWh | Total consumption since midnight |
+| Accumulated Cost | currency | Total cost since midnight |
+| Power Production | W | Current power production (e.g. solar) |
+| Accumulated Production | kWh | Total production since midnight |
+| Electricity Price (15 min) | currency/kWh | Current 15-minute spot price |
+| Electricity Price Energy | currency/kWh | Energy component of the price |
+| Electricity Price Tax | currency/kWh | Tax component of the price |
+| Price Level | — | Price level (VERY_CHEAP, CHEAP, NORMAL, EXPENSIVE, VERY_EXPENSIVE) |
+
+All live sensors update in real time via WebSocket push. Price sensors refresh every 60 seconds.
+
+---
+
+## Option 2: Standalone Python Script
+
+### Requirements
+
+- **Python 3.10+**
+
+### Installation
 
 1. **Clone the repository**
 
@@ -57,7 +115,7 @@ If you have multiple homes with real-time support, the data is displayed **side 
    pip install -r requirements.txt
    ```
 
-## Usage
+### Usage
 
 1. **Set your Tibber API token** as an environment variable:
 
@@ -87,7 +145,7 @@ If you have multiple homes with real-time support, the data is displayed **side 
 
 4. **Press `Ctrl+C`** to stop.
 
-## Example Output
+### Example Output
 
 ```
 TIBBER LIVE  -  Real-time energy data
@@ -110,6 +168,8 @@ Press Ctrl+C to stop.
   Accum Production :        0.000 kWh       |   Accum Production :        1.234 kWh
 --------------------------------------------|-----------------------------------------
 ```
+
+---
 
 ## API Reference
 

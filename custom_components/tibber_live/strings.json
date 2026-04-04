@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tibber Live — Connect your account",
+        "description": "Enter your Tibber API token. You can find it at https://developer.tibber.com/ under 'Load personal token'.",
+        "data": {
+          "token": "API Token"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to the Tibber API. Please check your network connection.",
+      "invalid_token": "Invalid API token. Please verify your token at developer.tibber.com.",
+      "no_realtime_homes": "No homes with real-time support found. A Tibber Pulse or Watty device is required.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This Tibber account is already configured."
+    }
+  }
+}
