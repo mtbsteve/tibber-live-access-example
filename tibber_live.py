@@ -61,6 +61,10 @@ PRICE_QUERY = """
             level
             startsAt
           }
+          today {
+            total
+            startsAt
+          }
         }
       }
     }
@@ -157,7 +161,17 @@ def fetch_current_prices() -> dict[str, dict]:
     for home in data["data"]["viewer"]["homes"]:
         sub = home.get("currentSubscription")
         if sub and sub.get("priceInfo") and sub["priceInfo"].get("current"):
-            prices[home["id"]] = sub["priceInfo"]["current"]
+            price_info = dict(sub["priceInfo"]["current"])
+
+            # Compute min/max from today's prices
+            today = sub["priceInfo"].get("today", [])
+            if today:
+                totals = [p["total"] for p in today if p.get("total") is not None]
+                if totals:
+                    price_info["minPriceToday"] = min(totals)
+                    price_info["maxPriceToday"] = max(totals)
+
+            prices[home["id"]] = price_info
     return prices
 
 
@@ -191,8 +205,12 @@ def build_column(m: dict, price: dict | None = None) -> list[str]:
         lines.append(f"  {format_value('  Energy         ', price.get('energy'), f'{p_currency}/kWh', '.4f')}")
         lines.append(f"  {format_value('  Tax            ', price.get('tax'), f'{p_currency}/kWh', '.4f')}")
         lines.append(f"  Price Level      : {level:>{10}}")
+        lines.append(f"  {format_value('Min Price Today  ', price.get('minPriceToday'), f'{p_currency}/kWh', '.4f')}")
+        lines.append(f"  {format_value('Max Price Today  ', price.get('maxPriceToday'), f'{p_currency}/kWh', '.4f')}")
     else:
         lines.append(f"  Price (15 min)   : {'n/a':>{10}}")
+        lines.append(f"  {'':>17}  {'':>{10}}")
+        lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
@@ -235,7 +253,7 @@ def render_side_by_side(
         if m:
             columns.append(build_column(m, prices.get(hid)))
         else:
-            columns.append(["  (waiting for data …)"] + [""] * 14)
+            columns.append(["  (waiting for data …)"] + [""] * 16)
 
     # Zip rows together
     rows = []

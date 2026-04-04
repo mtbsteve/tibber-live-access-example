@@ -42,6 +42,10 @@ PRICE_QUERY = """
             level
             startsAt
           }
+          today {
+            total
+            startsAt
+          }
         }
       }
     }
@@ -170,5 +174,19 @@ PRICE_SENSOR_TYPES = {
         "state_class": None,
         "unit": None,
         "icon": "mdi:tag",
+    },
+    "price_min_today": {
+        "name": "Min Price Today",
+        "device_class": "monetary",
+        "state_class": "measurement",
+        "unit": None,
+        "icon": "mdi:arrow-down-bold",
+    },
+    "price_max_today": {
+        "name": "Max Price Today",
+        "device_class": "monetary",
+        "state_class": "measurement",
+        "unit": None,
+        "icon": "mdi:arrow-up-bold",
     },
 }

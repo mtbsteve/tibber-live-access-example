@@ -247,6 +247,14 @@ class TibberPriceSensor(SensorEntity):
                 self._attr_native_unit_of_measurement = f"{currency}/kWh"
         elif self._sensor_key == "price_level":
             self._attr_native_value = price.get("level")
+        elif self._sensor_key == "price_min_today":
+            self._attr_native_value = price.get("minPriceToday")
+            if currency:
+                self._attr_native_unit_of_measurement = f"{currency}/kWh"
+        elif self._sensor_key == "price_max_today":
+            self._attr_native_value = price.get("maxPriceToday")
+            if currency:
+                self._attr_native_unit_of_measurement = f"{currency}/kWh"
 
     async def async_added_to_hass(self) -> None:
         """Register dispatcher listener when added."""
