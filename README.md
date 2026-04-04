@@ -9,6 +9,7 @@ If you have multiple homes with real-time support, the data is displayed **side 
 - **OAuth2 Bearer token** authentication
 - Auto-discovery of all homes on your Tibber account
 - Dual-home side-by-side live display
+- **Current electricity price** display (total, energy, tax, price level) — refreshed every 5 minutes
 - Real-time fields: power, accumulated consumption, accumulated cost, currency, min/avg/max power, power production, accumulated production
 - Auto-reconnect on connection loss
 
@@ -80,8 +81,9 @@ If you have multiple homes with real-time support, the data is displayed **side 
 3. The program will:
    - Fetch all homes linked to your Tibber account
    - Display each home's ID and real-time capability
+   - Fetch the current electricity price for each home
    - Subscribe to live measurements via WebSocket
-   - Stream data to your terminal in real time
+   - Stream data to your terminal in real time (prices refresh every 5 minutes)
 
 4. **Press `Ctrl+C`** to stop.
 
@@ -91,18 +93,22 @@ If you have multiple homes with real-time support, the data is displayed **side 
 TIBBER LIVE  -  Real-time energy data
 Press Ctrl+C to stop.
 
-   Home 1: Musterstr. 1, Berlin       |    Home 2: Beispielweg 5, Muenchen
---------------------------------------|-----------------------------------------
-  Time      : 2026-04-04 14:23:01     |   Time      : 2026-04-04 14:23:02
-  Power     :     1234.0 W            |   Power     :      567.0 W
-  Accum Cons:       12.345 kWh        |   Accum Cons:        5.678 kWh
-  Accum Cost:        3.45 EUR         |   Accum Cost:        1.23 EUR
-  Min Power :      100.0 W            |   Min Power :       50.0 W
-  Avg Power :      800.0 W            |   Avg Power :      400.0 W
-  Max Power :     2000.0 W            |   Max Power :     1000.0 W
-  Power Prod:        0.0 W            |   Power Prod:      250.0 W
-  Acumm Prod:        0.000 kWh        |   Acumm Prod:        1.234 kWh
---------------------------------------|-----------------------------------------
+     Home 1: Musterstr. 1, Berlin          |       Home 2: Beispielweg 5, Muenchen
+--------------------------------------------|-----------------------------------------
+  Time             : 2026-04-04 14:23:01    |   Time             : 2026-04-04 14:23:02
+  Current Price    :     0.2835 EUR/kWh     |   Current Price    :     0.3012 EUR/kWh
+    Energy         :     0.1200 EUR/kWh     |     Energy         :     0.1350 EUR/kWh
+    Tax            :     0.1635 EUR/kWh     |     Tax            :     0.1662 EUR/kWh
+  Price Level      :     NORMAL             |   Price Level      :     EXPENSIVE
+  Power            :     1234.0 W           |   Power            :      567.0 W
+  Accum Consumption:       12.345 kWh       |   Accum Consumption:        5.678 kWh
+  Accum Cost       :        3.45 EUR        |   Accum Cost       :        1.23 EUR
+  Min Power        :      100.0 W           |   Min Power        :       50.0 W
+  Avg Power        :      800.0 W           |   Avg Power        :      400.0 W
+  Max Power        :     2000.0 W           |   Max Power        :     1000.0 W
+  Power Production :        0.0 W           |   Power Production :      250.0 W
+  Accum Production :        0.000 kWh       |   Accum Production :        1.234 kWh
+--------------------------------------------|-----------------------------------------
 ```
 
 ## API Reference
