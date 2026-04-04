@@ -29,6 +29,7 @@ MEASUREMENT_MAP = {
     "accumulatedConsumption": "accumulated_consumption",
     "accumulatedCost": "accumulated_cost",
     "powerProduction": "power_production",
+    "accumulatedProduction": "accumulated_production",
     "lastMeterProduction": "last_meter_production",
     "lastMeterConsumption": "last_meter_consumption",
 }
