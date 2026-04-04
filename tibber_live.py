@@ -52,7 +52,7 @@ PRICE_QUERY = """
     homes {
       id
       currentSubscription {
-        priceInfo {
+        priceInfo(resolution: QUARTER_HOURLY) {
           current {
             total
             energy
@@ -185,12 +185,12 @@ def build_column(m: dict, price: dict | None = None) -> list[str]:
     if price:
         p_currency = price.get("currency", currency)
         level = price.get("level", "")
-        lines.append(f"  {format_value('Current Price    ', price.get('total'), f'{p_currency}/kWh', '.4f')}")
+        lines.append(f"  {format_value('Price (15 min)   ', price.get('total'), f'{p_currency}/kWh', '.4f')}")
         lines.append(f"  {format_value('  Energy         ', price.get('energy'), f'{p_currency}/kWh', '.4f')}")
         lines.append(f"  {format_value('  Tax            ', price.get('tax'), f'{p_currency}/kWh', '.4f')}")
         lines.append(f"  Price Level      : {level:>{10}}")
     else:
-        lines.append(f"  Current Price    : {'n/a':>{10}}")
+        lines.append(f"  Price (15 min)   : {'n/a':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
@@ -307,7 +307,11 @@ async def price_updater(
     prices: dict[str, dict],
     update_event: asyncio.Event,
 ) -> None:
-    """Periodically refresh the current electricity price (every 5 minutes)."""
+    """Periodically refresh the current electricity price (every 60 seconds).
+
+    Tibber uses quarter-hourly (15-min) pricing since Oct 2025 (EPEX Spot).
+    We poll every 60 s so the display updates promptly at each 15-min boundary.
+    """
     while True:
         try:
             new_prices = await asyncio.to_thread(fetch_current_prices)
@@ -315,7 +319,7 @@ async def price_updater(
             update_event.set()
         except Exception as exc:
             print(f"[price] Failed to fetch prices: {exc}")
-        await asyncio.sleep(300)  # refresh every 5 minutes
+        await asyncio.sleep(60)  # poll every 60 s to catch 15-min price changes
 
 
 async def display_loop(
