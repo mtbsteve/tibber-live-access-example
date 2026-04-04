@@ -64,7 +64,7 @@ subscription($homeId: ID!) {
 """
 
 # Column width for side-by-side display
-COL_WIDTH = 42
+COL_WIDTH = 49
 
 
 def get_headers() -> dict:
@@ -134,15 +134,15 @@ def build_column(m: dict) -> list[str]:
     currency = m.get("currency", "")
 
     return [
-        f"  Time      : {ts_display}",
-        f"  {format_value('Power     ', m.get('power'), 'W')}",
-        f"  {format_value('Accum Cons', m.get('accumulatedConsumption'), 'kWh', '.3f')}",
-        f"  {format_value('Accum Cost', m.get('accumulatedCost'), currency, '.2f')}",
-        f"  {format_value('Min Power ', m.get('minPower'), 'W')}",
-        f"  {format_value('Avg Power ', m.get('averagePower'), 'W')}",
-        f"  {format_value('Max Power ', m.get('maxPower'), 'W')}",
-        f"  {format_value('Power Prod', m.get('powerProduction'), 'W')}",
-        f"  {format_value('Acumm Prod', max(m.get('lastMeterProduction') or 0, 0), 'kWh', '.3f')}",
+        f"  Time             : {ts_display}",
+        f"  {format_value('Power            ', m.get('power'), 'W')}",
+        f"  {format_value('Accum Consumption', m.get('accumulatedConsumption'), 'kWh', '.3f')}",
+        f"  {format_value('Accum Cost       ', m.get('accumulatedCost'), currency, '.2f')}",
+        f"  {format_value('Min Power        ', m.get('minPower'), 'W')}",
+        f"  {format_value('Avg Power        ', m.get('averagePower'), 'W')}",
+        f"  {format_value('Max Power        ', m.get('maxPower'), 'W')}",
+        f"  {format_value('Power Production ', m.get('powerProduction'), 'W')}",
+        f"  {format_value('Accum Production ', max(m.get('lastMeterProduction') or 0, 0), 'kWh', '.3f')}",
     ]
 
 
