@@ -29,7 +29,8 @@ MEASUREMENT_MAP = {
     "accumulatedConsumption": "accumulated_consumption",
     "accumulatedCost": "accumulated_cost",
     "powerProduction": "power_production",
-    "lastMeterProduction": "accumulated_production",
+    "lastMeterProduction": "last_meter_production",
+    "lastMeterConsumption": "last_meter_consumption",
 }
 
 DEVICE_CLASS_MAP = {
@@ -116,7 +117,7 @@ async def async_setup_entry(
                     value = data.get(api_key)
 
                     # Clamp negative production to zero
-                    if sensor_key == "accumulated_production" and value is not None:
+                    if sensor_key == "last_meter_production" and value is not None:
                         value = max(value, 0)
 
                     # Set currency unit for monetary sensors

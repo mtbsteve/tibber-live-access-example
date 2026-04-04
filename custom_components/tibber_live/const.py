@@ -62,6 +62,7 @@ subscription($homeId: ID!) {
     maxPower
     powerProduction
     lastMeterProduction
+    lastMeterConsumption
   }
 }
 """
@@ -117,12 +118,19 @@ LIVE_SENSOR_TYPES = {
         "unit": "W",
         "icon": "mdi:solar-power",
     },
-    "accumulated_production": {
-        "name": "Accumulated Production",
+    "last_meter_production": {
+        "name": "Last Meter Production",
         "device_class": "energy",
         "state_class": "total_increasing",
         "unit": "kWh",
         "icon": "mdi:solar-power-variant",
+    },
+    "last_meter_consumption": {
+        "name": "Last Meter Consumption",
+        "device_class": "energy",
+        "state_class": "total_increasing",
+        "unit": "kWh",
+        "icon": "mdi:meter-electric",
     },
 }
 

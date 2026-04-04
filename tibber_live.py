@@ -81,6 +81,7 @@ subscription($homeId: ID!) {
     maxPower
     powerProduction
     lastMeterProduction
+    lastMeterConsumption
   }
 }
 """
@@ -203,7 +204,8 @@ def build_column(m: dict, price: dict | None = None) -> list[str]:
         f"  {format_value('Avg Power        ', m.get('averagePower'), 'W')}",
         f"  {format_value('Max Power        ', m.get('maxPower'), 'W')}",
         f"  {format_value('Power Production ', m.get('powerProduction'), 'W')}",
-        f"  {format_value('Accum Production ', max(m.get('lastMeterProduction') or 0, 0), 'kWh', '.3f')}",
+        f"  {format_value('Last Meter Prod. ', max(m.get('lastMeterProduction') or 0, 0), 'kWh', '.3f')}",
+        f"  {format_value('Last Meter Cons. ', m.get('lastMeterConsumption'), 'kWh', '.3f')}",
     ])
 
     return lines
@@ -231,7 +233,7 @@ def render_side_by_side(
         if m:
             columns.append(build_column(m, prices.get(hid)))
         else:
-            columns.append(["  (waiting for data …)"] + [""] * 12)
+            columns.append(["  (waiting for data …)"] + [""] * 13)
 
     # Zip rows together
     rows = []
