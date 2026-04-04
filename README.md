@@ -15,7 +15,7 @@ This repository contains:
 - Auto-discovery of all homes on your Tibber account
 - Multi-home support (all homes with real-time enabled)
 - **Quarter-hourly (15-min) electricity price** (total, energy, tax, price level) — EPEX Spot resolution, refreshed every 60 seconds
-- Real-time fields: power, accumulated consumption, accumulated cost, min/avg/max power, power production, accumulated production
+- Real-time fields: power, accumulated consumption, accumulated cost, min/avg/max power, power production, accumulated production, last meter production, last meter consumption
 - Auto-reconnect on connection loss
 
 ## Prerequisites
@@ -69,7 +69,9 @@ For **each home**, the following sensors are created:
 | Accumulated Consumption | kWh | Total consumption since midnight |
 | Accumulated Cost | currency | Total cost since midnight |
 | Power Production | W | Current power production (e.g. solar) |
-| Accumulated Production | kWh | Total production since midnight |
+| Accum Production | kWh | Accumulated production since midnight |
+| Last Meter Production | kWh | Last meter reading for production |
+| Last Meter Consumption | kWh | Last meter reading for consumption |
 | Electricity Price (15 min) | currency/kWh | Current 15-minute spot price |
 | Electricity Price Energy | currency/kWh | Energy component of the price |
 | Electricity Price Tax | currency/kWh | Tax component of the price |
@@ -166,6 +168,8 @@ Press Ctrl+C to stop.
   Max Power        :     2000.0 W           |   Max Power        :     1000.0 W
   Power Production :        0.0 W           |   Power Production :      250.0 W
   Accum Production :        0.000 kWh       |   Accum Production :        1.234 kWh
+  Last Meter Prod. :        0.000 kWh       |   Last Meter Prod. :        5.678 kWh
+  Last Meter Cons. :      123.456 kWh       |   Last Meter Cons. :       98.765 kWh
 --------------------------------------------|-----------------------------------------
 ```
 
