@@ -46,6 +46,28 @@ HOMES_QUERY = """
 }
 """
 
+PRICE_QUERY = """
+{
+  viewer {
+    homes {
+      id
+      currentSubscription {
+        priceInfo {
+          current {
+            total
+            energy
+            tax
+            currency
+            level
+            startsAt
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
 LIVE_SUBSCRIPTION = """
 subscription($homeId: ID!) {
   liveMeasurement(homeId: $homeId) {
@@ -115,6 +137,28 @@ def fetch_rt_homes() -> list[dict]:
     return rt_homes
 
 
+def fetch_current_prices() -> dict[str, dict]:
+    """Fetch the current electricity price for all homes. Returns {home_id: price_info}."""
+    resp = requests.post(
+        TIBBER_API_URL,
+        json={"query": PRICE_QUERY},
+        headers=get_headers(),
+        timeout=15,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+
+    if "errors" in data:
+        return {}
+
+    prices = {}
+    for home in data["data"]["viewer"]["homes"]:
+        sub = home.get("currentSubscription")
+        if sub and sub.get("priceInfo") and sub["priceInfo"].get("current"):
+            prices[home["id"]] = sub["priceInfo"]["current"]
+    return prices
+
+
 def format_value(label: str, value, unit: str = "", fmt: str = ".1f") -> str:
     """Format a single metric as 'Label : value unit'."""
     if value is None:
@@ -122,7 +166,7 @@ def format_value(label: str, value, unit: str = "", fmt: str = ".1f") -> str:
     return f"{label}: {value:>{10}{fmt}} {unit}"
 
 
-def build_column(m: dict) -> list[str]:
+def build_column(m: dict, price: dict | None = None) -> list[str]:
     """Build display lines for one home's measurement."""
     ts = m.get("timestamp", "")
     try:
@@ -133,8 +177,25 @@ def build_column(m: dict) -> list[str]:
 
     currency = m.get("currency", "")
 
-    return [
+    lines = [
         f"  Time             : {ts_display}",
+    ]
+
+    # Current electricity price
+    if price:
+        p_currency = price.get("currency", currency)
+        level = price.get("level", "")
+        lines.append(f"  {format_value('Current Price    ', price.get('total'), f'{p_currency}/kWh', '.4f')}")
+        lines.append(f"  {format_value('  Energy         ', price.get('energy'), f'{p_currency}/kWh', '.4f')}")
+        lines.append(f"  {format_value('  Tax            ', price.get('tax'), f'{p_currency}/kWh', '.4f')}")
+        lines.append(f"  Price Level      : {level:>{10}}")
+    else:
+        lines.append(f"  Current Price    : {'n/a':>{10}}")
+        lines.append(f"  {'':>17}  {'':>{10}}")
+        lines.append(f"  {'':>17}  {'':>{10}}")
+        lines.append(f"  {'':>17}  {'':>{10}}")
+
+    lines.extend([
         f"  {format_value('Power            ', m.get('power'), 'W')}",
         f"  {format_value('Accum Consumption', m.get('accumulatedConsumption'), 'kWh', '.3f')}",
         f"  {format_value('Accum Cost       ', m.get('accumulatedCost'), currency, '.2f')}",
@@ -143,13 +204,16 @@ def build_column(m: dict) -> list[str]:
         f"  {format_value('Max Power        ', m.get('maxPower'), 'W')}",
         f"  {format_value('Power Production ', m.get('powerProduction'), 'W')}",
         f"  {format_value('Accum Production ', max(m.get('lastMeterProduction') or 0, 0), 'kWh', '.3f')}",
-    ]
+    ])
+
+    return lines
 
 
 def render_side_by_side(
     home_ids: list[str],
     id_to_label: dict[str, str],
     data: dict[str, dict],
+    prices: dict[str, dict],
 ) -> str:
     """Render the latest measurements for all homes side by side."""
     term_width = shutil.get_terminal_size((100, 24)).columns
@@ -165,9 +229,9 @@ def render_side_by_side(
     for hid in home_ids:
         m = data.get(hid)
         if m:
-            columns.append(build_column(m))
+            columns.append(build_column(m, prices.get(hid)))
         else:
-            columns.append(["  (waiting for data …)"] + [""] * 8)
+            columns.append(["  (waiting for data …)"] + [""] * 12)
 
     # Zip rows together
     rows = []
@@ -239,10 +303,26 @@ async def subscribe_home(
             await asyncio.sleep(5)
 
 
+async def price_updater(
+    prices: dict[str, dict],
+    update_event: asyncio.Event,
+) -> None:
+    """Periodically refresh the current electricity price (every 5 minutes)."""
+    while True:
+        try:
+            new_prices = await asyncio.to_thread(fetch_current_prices)
+            prices.update(new_prices)
+            update_event.set()
+        except Exception as exc:
+            print(f"[price] Failed to fetch prices: {exc}")
+        await asyncio.sleep(300)  # refresh every 5 minutes
+
+
 async def display_loop(
     home_ids: list[str],
     id_to_label: dict[str, str],
     latest: dict,
+    prices: dict[str, dict],
     update_event: asyncio.Event,
 ) -> None:
     """Re-render the side-by-side view whenever new data arrives."""
@@ -254,12 +334,13 @@ async def display_loop(
         print("\033[2J\033[H", end="")  # ANSI clear screen + cursor home
         print("TIBBER LIVE  ─  Real-time energy data")
         print("Press Ctrl+C to stop.\n")
-        print(render_side_by_side(home_ids, id_to_label, latest))
+        print(render_side_by_side(home_ids, id_to_label, latest, prices))
 
 
 async def run(rt_homes: list[dict]) -> None:
     """Launch subscriptions for all homes and the display loop."""
     latest: dict[str, dict] = {}
+    prices: dict[str, dict] = {}
     update_event = asyncio.Event()
 
     # Map home_id -> display label (guaranteed unique keys)
@@ -278,9 +359,14 @@ async def run(rt_homes: list[dict]) -> None:
             )
         )
 
+    # Price updater task (refreshes every 5 minutes)
+    tasks.append(asyncio.create_task(
+        price_updater(prices, update_event)
+    ))
+
     # Display task uses home_ids as keys but id_to_label for headers
     tasks.append(asyncio.create_task(
-        display_loop(home_ids, id_to_label, latest, update_event)
+        display_loop(home_ids, id_to_label, latest, prices, update_event)
     ))
 
     print("Connecting to Tibber WebSocket for all homes …\n")
