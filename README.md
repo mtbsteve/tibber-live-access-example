@@ -77,6 +77,7 @@ For **each home**, the following sensors are created:
 | Electricity Price Tax | currency/kWh | Tax component of the price |
 | Price Level | — | Price level (VERY_CHEAP, CHEAP, NORMAL, EXPENSIVE, VERY_EXPENSIVE) |
 | Min Price Today | currency/kWh | Lowest 15-minute spot price of the day |
+| Avg Price Today | currency/kWh | Average of all 15-minute spot prices today (4 decimal places) |
 | Max Price Today | currency/kWh | Highest 15-minute spot price of the day |
 
 All live sensors update in real time via WebSocket push. Price sensors refresh every 60 seconds.
@@ -163,6 +164,7 @@ Press Ctrl+C to stop.
     Tax            :     0.1635 EUR/kWh     |     Tax            :     0.1662 EUR/kWh
   Price Level      :     NORMAL             |   Price Level      :     EXPENSIVE
   Min Price Today  :     0.1523 EUR/kWh     |   Min Price Today  :     0.1680 EUR/kWh
+  Avg Price Today  :     0.2634 EUR/kWh     |   Avg Price Today  :     0.2801 EUR/kWh
   Max Price Today  :     0.3845 EUR/kWh     |   Max Price Today  :     0.4012 EUR/kWh
   Power            :     1234.0 W           |   Power            :      567.0 W
   Accum Consumption:       12.345 kWh       |   Accum Consumption:        5.678 kWh

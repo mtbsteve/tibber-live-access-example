@@ -98,7 +98,7 @@ class TibberApiClient:
                         totals = [p["total"] for p in today if p.get("total") is not None]
                         if totals:
                             price_info["minPriceToday"] = min(totals)
-                            price_info["avgPriceToday"] = sum(totals) / len(totals)
+                            price_info["avgPriceToday"] = round(sum(totals) / len(totals), 4)
                             price_info["maxPriceToday"] = max(totals)
 
                     prices[home["id"]] = price_info
