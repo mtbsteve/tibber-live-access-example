@@ -170,6 +170,7 @@ def fetch_current_prices() -> dict[str, dict]:
                 if totals:
                     price_info["minPriceToday"] = min(totals)
                     price_info["maxPriceToday"] = max(totals)
+                    price_info["avgPriceToday"] = sum(totals) / len(totals)
 
             prices[home["id"]] = price_info
     return prices
@@ -206,9 +207,11 @@ def build_column(m: dict, price: dict | None = None) -> list[str]:
         lines.append(f"  {format_value('  Tax            ', price.get('tax'), f'{p_currency}/kWh', '.4f')}")
         lines.append(f"  Price Level      : {level:>{10}}")
         lines.append(f"  {format_value('Min Price Today  ', price.get('minPriceToday'), f'{p_currency}/kWh', '.4f')}")
+        lines.append(f"  {format_value('Avg Price Today  ', price.get('avgPriceToday'), f'{p_currency}/kWh', '.4f')}")
         lines.append(f"  {format_value('Max Price Today  ', price.get('maxPriceToday'), f'{p_currency}/kWh', '.4f')}")
     else:
         lines.append(f"  Price (15 min)   : {'n/a':>{10}}")
+        lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
         lines.append(f"  {'':>17}  {'':>{10}}")
