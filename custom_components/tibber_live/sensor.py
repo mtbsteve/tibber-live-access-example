@@ -251,6 +251,10 @@ class TibberPriceSensor(SensorEntity):
             self._attr_native_value = price.get("minPriceToday")
             if currency:
                 self._attr_native_unit_of_measurement = f"{currency}/kWh"
+        elif self._sensor_key == "price_avg_today":
+            self._attr_native_value = price.get("avgPriceToday")
+            if currency:
+                self._attr_native_unit_of_measurement = f"{currency}/kWh"
         elif self._sensor_key == "price_max_today":
             self._attr_native_value = price.get("maxPriceToday")
             if currency:

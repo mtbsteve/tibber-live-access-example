@@ -182,6 +182,13 @@ PRICE_SENSOR_TYPES = {
         "unit": None,
         "icon": "mdi:arrow-down-bold",
     },
+    "price_avg_today": {
+        "name": "Avg Price Today",
+        "device_class": "monetary",
+        "state_class": "measurement",
+        "unit": None,
+        "icon": "mdi:chart-line-variant",
+    },
     "price_max_today": {
         "name": "Max Price Today",
         "device_class": "monetary",
